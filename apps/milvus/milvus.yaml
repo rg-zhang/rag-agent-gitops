@@ -1,4 +1,4 @@
-# --- 配置 Milvus ---
+# --- 仿照 Ollama 格式配置 Milvus ---
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -81,6 +81,12 @@ spec:
           value: "true"
         - name: MINIO_USE_EMBED
           value: "true"
+        # 增加健康检查，防止启动失败
+        startupProbe:
+          tcpSocket:
+            port: 19530
+          failureThreshold: 30
+          periodSeconds: 10
       volumes:
       - name: milvus-etcd
         persistentVolumeClaim:
