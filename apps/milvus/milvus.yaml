@@ -9,8 +9,7 @@ metadata:
   name: milvus-etcd-pvc
   namespace: ai-services
 spec:
-  accessModes:
-    - ReadWriteOnce
+  accessModes: [ReadWriteOnce]
   storageClassName: openebs-hostpath
   resources:
     requests:
@@ -70,6 +69,7 @@ spec:
         - --listen-client-urls=http://0.0.0.0:2379
         - --advertise-client-urls=http://milvus-etcd:2379
         - --initial-cluster=etcd-0=http://milvus-etcd:2379
+        - --initial-cluster-token=milvus-etcd-cluster
         ports:
         - containerPort: 2379
         volumeMounts:
@@ -166,12 +166,11 @@ metadata:
   name: milvus-etcd
   namespace: ai-services
 spec:
-  type: ClusterIP
-  selector:
-    app: milvus-etcd
   ports:
   - port: 2379
     targetPort: 2379
+  selector:
+    app: milvus-etcd
 ---
 apiVersion: v1
 kind: Service
