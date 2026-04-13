@@ -126,7 +126,7 @@ spec:
       containers:
       - name: milvus
         image: milvusdb/milvus:v2.4.3
-        command: ["milvus", "standalone"]
+        command: ["milvus", "run", "standalone"]
         env:
         - name: ETCD_ENDPOINTS
           value: "milvus-etcd:2379"
