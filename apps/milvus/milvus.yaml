@@ -1,10 +1,9 @@
-# --- 仿照 Ollama 格式配置 Milvus ---
+# --- Milvus 动态存储 YAML ｜ 完全沿用Ollama格式 ---
 apiVersion: v1
 kind: Namespace
 metadata:
   name: ai-services
 ---
-# etcd 存储
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -18,7 +17,6 @@ spec:
     requests:
       storage: 10Gi
 ---
-# minio 存储
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -32,7 +30,6 @@ spec:
     requests:
       storage: 20Gi
 ---
-# milvus 数据存储
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -46,59 +43,44 @@ spec:
     requests:
       storage: 50Gi
 ---
-# Milvus Standalone 部署
+# Milvus Standalone
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: milvus
+  name: milvus-standalone
   namespace: ai-services
 spec:
   replicas: 1
   selector:
-    matchLabels:
-      app: milvus
+    matchLabels: { app: milvus-standalone }
   template:
     metadata:
-      labels:
-        app: milvus
+      labels: { app: milvus-standalone }
     spec:
       containers:
       - name: milvus
-        image: milvusdb/milvus:v2.4.7
-        command: ["milvus", "standalone", "console"]
+        image: milvusdb/milvus:latest
         ports:
         - containerPort: 19530
         - containerPort: 9091
         volumeMounts:
-        - name: milvus-etcd
-          mountPath: /var/lib/etcd
-        - name: milvus-minio
-          mountPath: /var/lib/minio
+        - name: etcd-data
+          mountPath: /var/lib/milvus/etcd
+        - name: minio-data
+          mountPath: /var/lib/milvus/minio
         - name: milvus-data
           mountPath: /var/lib/milvus
-        env:
-        - name: ETCD_USE_EMBED
-          value: "true"
-        - name: MINIO_USE_EMBED
-          value: "true"
-        # 增加健康检查，防止启动失败
-        startupProbe:
-          tcpSocket:
-            port: 19530
-          failureThreshold: 30
-          periodSeconds: 10
       volumes:
-      - name: milvus-etcd
+      - name: etcd-data
         persistentVolumeClaim:
           claimName: milvus-etcd-pvc
-      - name: milvus-minio
+      - name: minio-data
         persistentVolumeClaim:
           claimName: milvus-minio-pvc
       - name: milvus-data
         persistentVolumeClaim:
           claimName: milvus-standalone-pvc
 ---
-# Milvus 服务
 apiVersion: v1
 kind: Service
 metadata:
@@ -106,12 +88,9 @@ metadata:
   namespace: ai-services
 spec:
   type: NodePort
-  selector:
-    app: milvus
+  selector: { app: milvus-standalone }
   ports:
-  - name: milvus-grpc
-    port: 19530
+  - port: 19530
     targetPort: 19530
-  - name: milvus-metric
-    port: 9091
+  - port: 9091
     targetPort: 9091
