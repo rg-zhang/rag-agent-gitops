@@ -57,20 +57,33 @@ spec:
       labels:
         app: milvus-etcd
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
       - name: etcd
-        image: quay.io/coreos/etcd:v3.5.5
+        image: quay.io/coreos/etcd:v3.5.9
+        command: ["etcd"]
         args:
-        - --listen-client-urls=http://0.0.0.0:2379
-        - --advertise-client-urls=http://0.0.0.0:2379
+        - --name=etcd-0
         - --data-dir=/etcd-data
+        - --listen-client-urls=http://0.0.0.0:2379
+        - --advertise-client-urls=http://milvus-etcd:2379
+        - --initial-cluster=etcd-0=http://milvus-etcd:2379
         ports:
         - containerPort: 2379
         volumeMounts:
-        - name: data
+        - name: etcd-data
           mountPath: /etcd-data
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
       volumes:
-      - name: data
+      - name: etcd-data
         persistentVolumeClaim:
           claimName: milvus-etcd-pvc
 ---
