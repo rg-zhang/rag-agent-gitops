@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: milvus
+  namespace: argocd
+spec:
+  project: default
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: milvus
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+  source:
+    repoURL: https://zilliztech.github.io/milvus-helm/
+    chart: milvus
+    targetRevision: 4.1.22
+    helm:
+      values: |
+        service:
+          type: NodePort
+
+        cluster:
+          enabled: false
+
+        pulsar:
+          enabled: false
+
+        etcd:
+          replicaCount: 1
+          persistence:
+            enabled: true
+            storageClass: "openebs-hostpath"
+            size: 10Gi
+
+        minio:
+          mode: standalone
+          persistence:
+            enabled: true
+            storageClass: "openebs-hostpath"
+            size: 20Gi
+
+        standalone:
+          persistence:
+            enabled: true
+            storageClass: "openebs-hostpath"
+            size: 50Gi
+
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "1"
+              memory: "2Gi"
