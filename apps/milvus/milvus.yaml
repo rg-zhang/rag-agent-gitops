@@ -49,8 +49,10 @@ spec:
         standalone:
           persistence:
             enabled: true
-            storageClass: "openebs-hostpath"
-            size: 50Gi
+            persistentVolumeClaim:
+              storageClass: "openebs-hostpath"
+              accessModes: ReadWriteOnce
+              size: 50Gi
 
           resources:
             requests:
