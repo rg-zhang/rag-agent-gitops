@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: ragas-evaluator
-        image: localhost/ragas-evaluator:v2
+        image: localhost/ragas-evaluator:v3
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
