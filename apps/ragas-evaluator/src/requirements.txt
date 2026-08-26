@@ -1,0 +1,20 @@
+# web服务
+uvicorn[standard]>=0.24.0
+fastapi>=0.104.0
+pydantic>=2.5.0
+
+# ragas核心
+ragas>=0.2.0
+
+# langchain依赖，修复vertexai模块缺失
+langchain>=0.2.0
+langchain-core>=0.2.0
+langchain-community>=0.2.4
+
+# 数据处理
+datasets>=2.15.0
+numpy>=1.26.0
+pandas>=2.1.0
+
+# ollama对接（你环境使用ollama）
+langchain-ollama>=0.1.0
