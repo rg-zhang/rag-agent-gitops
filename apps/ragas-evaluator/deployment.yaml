@@ -33,7 +33,7 @@ spec:
         command: ["/bin/sh", "-c"]
         args:
         - |
-          pip install --no-cache-dir fastapi uvicorn ragas langchain-ollama datasets pydantic
+          pip install --no-cache-dir fastapi uvicorn ragas langchain-ollama datasets pydantic pandas
 
           cat << 'EOF' > main.py
           import sys
@@ -82,7 +82,9 @@ spec:
                   llm=evaluator_llm,
                   embeddings=embedding_model
               )
-              return result.to_dict()
+              
+              # ✅ 修复：将 EvaluationResult 转为标准 Python dict 返回
+              return dict(result)
           EOF
 
           uvicorn main:app --host 0.0.0.0 --port 8000
